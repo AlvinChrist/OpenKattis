@@ -140,12 +140,12 @@ int main(){
                 cout<<"neither"<<'\n';
             }
             else{
-                s = clock(); 
+                //s = clock(); 
                 int stat=path(r1,c1,r2,c2,r-1,c-1,map);
-                e = clock(); 
-                double time_taken = double(e - s) / double(CLOCKS_PER_SEC); 
-                cout << "Time taken by program is : " << fixed  << time_taken << setprecision(20); 
-                cout << " sec " << endl; 
+                //e = clock(); 
+                //double time_taken = double(e - s) / double(CLOCKS_PER_SEC); 
+                //cout << "Time taken by program is : " << fixed  << time_taken << setprecision(20); 
+                //cout << " sec " << endl; 
                 if(stat!=9){
                     (stat==0)?cout<<"binary"<<'\n':cout<<"decimal"<<'\n';
                 }
