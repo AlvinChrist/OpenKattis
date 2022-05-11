@@ -1,159 +1,121 @@
 #include <iostream>
 #include <vector>
-#include <iomanip>
-#define pb push_back
+#include <queue>
 using namespace std;
 
-int checkEndPoint(int dest,int r2,int c2,int row,int col,vector<vector<int>>map){
-    if(r2<row)
-        if(map[r2+1][c2]==dest)
-            return 0;
-    if(r2>0)  
-        if(map[r2-1][c2]==dest)
-            return 0;
-    if(c2<col)
-        if(map[r2][c2+1]==dest)
-            return 0;
-    if(c2>0)
-        if(map[r2][c2-1]==dest)
-            return 0;
-    return 9;
+int n, m;
+int dx[4] = {1, 0, -1, 0};
+int dy[4] = {0, 1, 0, -1};
+int mp[1005][1005];
+int vis[2][1005][1005] = {};
+
+void bfs(pair<int, int> start, pair<int, int> end, int counter)
+{
+  queue<vector<pair<int, int>>> q;
+  vector<pair<int, int>> v;
+  v.push_back(start);
+  q.push(v);
+  int type = mp[start.first][start.second];
+  int a = vis[type][start.first][start.second];
+  int b = vis[type][end.first][end.second];
+  if (a == b && (a + b) != 0)
+  {
+    if (type == 1)
+      cout << "decimal\n";
+    else
+      cout << "binary\n";
+    return;
+  }
+
+  while (q.size() > 0)
+  {
+    vector<pair<int, int>> front = q.front();
+    q.pop();
+    for (int i = 0; i < front.size(); ++i)
+    {
+      if (front[i].first == end.first && front[i].second == end.second)
+      {
+        if (type == 1)
+          cout << "decimal\n";
+        else
+          cout << "binary\n";
+        return;
+      }
+      else
+      {
+        vector<pair<int, int>> nextMove;
+        for (int j = 0; j < 4; ++j)
+        {
+          int px = front[i].first + dx[j];
+          int py = front[i].second + dy[j];
+          pair<int, int> next(px, py);
+          if (px < 0 || px >= n || py < 0 || py >= m || mp[px][py] != type || (vis[type][px][py] != 0 && vis[type][px][py] != a && vis[type][px][py] == counter))
+          {
+            continue;
+          }
+          // cout << front[i].first << ' ' << front[i].second << '|'  << px << ' ' << py << '\n';
+          vis[type][px][py] = counter;
+          nextMove.push_back(next);
+        }
+        q.push(nextMove);
+      }
+    }
+  }
+  cout << "neither\n";
 }
-int path(int r1,int c1,int r2,int c2,int row,int col,vector<vector<int>> map){
-    int dest=map[r2][c2];
-    int _r1 = r1;
-    int _c1 = c1;
-    int possibility = 0;
-    vector<int> last;
-    (r1<row)?(map[r1+1][c1]==dest)?possibility++:0:0;
-    (r1>0)?(map[r1-1][c1]==dest)?possibility++:0:0;
-    (c1<col)?(map[r1][c1+1]==dest)?possibility++:0:0;
-    (c1>0)?(map[r1][c1-1]==dest)?possibility++:0:0;
-    if(possibility==0){
-        return 9;
+
+int main()
+{
+  ios_base::sync_with_stdio(false);
+  cin.tie(0);
+  cout.tie(0);
+  cin >> n >> m;
+  pair<int, int> start;
+  pair<int, int> end;
+  for (int i = 0; i < n; ++i)
+  {
+    string s;
+    cin >> s;
+    for (int j = 0; j < s.size(); ++j)
+    {
+      int tmp = s[j] - '0';
+      mp[i][j] = tmp;
     }
-    while(true){
-        int c=_c1+1,_c=_c1-1,r=_r1+1,_r=_r1-1;        
-        if(_r1==r2 && _c1==c2){
-            return dest;
-        }
-        else{
-            //cout<<_r1<<" "<<_c1<<'\n';
-            bool step=false;
-            if(_c1<col  && step==false){
-                if(map[_r1][c]==dest){
-                    //cout<<"right"<<'\n';
-                    last.pb(3);
-                    map[_r1][_c1]=9;
-                    _c1++;
-                    step = true;
-                }
-            }
-            if(_r1>0 && step==false){
-                if(map[_r][_c1]==dest ){
-                    //cout<<"up"<<'\n';
-                    last.pb(2);
-                    map[_r1][_c1]=9;
-                    _r1--;
-                    step = true;
-                }
-            }
-            if(_r1<row  && step==false){
-                if(map[r][_c1]==dest){
-                    //cout<<"down"<<'\n';
-                    last.pb(1);
-                    map[_r1][_c1]=9;
-                    _r1++;
-                    step = true;
-                    
-                }
-            }
-            if(_c1>0  && step==false){
-                if(map[_r1][_c]==dest){
-                    //cout<<"left"<<'\n';
-                    last.pb(4);
-                    map[_r1][_c1]=9;
-                    _c1--;
-                    step = true;
-                }
-            }
-            if(step==false){
-                map[_r1][_c1]= 9;
-                if(!last.empty()){
-                    if(last.back()==1)
-                        _r1--;
-                    else if(last.back()==2)
-                        _r1++;
-                    else if(last.back()==3){
-                        _c1--;
-                    }
-                    else if(last.back()==4)
-                        _c1++;
-                    last.pop_back();
-                }
-                if(_r1==r1 && _c1==c1){
-                    possibility--;
-                    if(possibility==0){
-                        return 9;
-                    }
-                }
-            }   
-        }
+  }
+  int t;
+  cin >> t;
+  int counter = 1;
+  while (t--)
+  {
+    int x1, y1, x2, y2;
+    cin >> x1 >> y1 >> x2 >> y2;
+    x1--;
+    x2--;
+    y1--;
+    y2--;
+    start = pair<int, int>(x1, y1);
+    end = pair<int, int>(x2, y2);
+    if (mp[start.first][start.second] != mp[end.first][end.second])
+    {
+      cout << "neither\n";
+      continue;
     }
-    return 9;
-}
-int main(){
-    clock_t s, e;
-    ios_base::sync_with_stdio(false);
-    int r=0,c=0;
-    cin>>r>>c;
-    vector<vector<int>> map;
-    for(int i=0;i<r;i++){
-        vector<int> col;
-        string _map;
-        cin>>_map;
-        for(int j=0;j<c;j++){
-            col.pb((int)_map[j]-'0');
-        }
-        map.pb(col);
-    }
-    int tc=0;
-    cin>>tc;
-    for(;tc>0;tc--){
-        int r1=0,c1=0,r2=0,c2=0;
-        cin>>r1>>c1>>r2>>c2;
-        r1--;
-        r2--;
-        c1--;
-        c2--;
-        int start=map[r1][c1],end=map[r2][c2];
-        //cout<<map[r1][c1]<<" " <<map[r2][c2]<<'\n';
-        //cout<<start<< " " <<end<<'\n';
-        if(start!=end){
-            cout<<"neither"<<'\n';
-        }
-        else if(r1==r2 && c1==c2){
-            (start==0)?cout<<"binary"<<'\n':cout<<"decimal"<<'\n';
-        }
-        else{
-            if(checkEndPoint(start,r2,c2,r-1,c-1,map)==9){
-                cout<<"neither"<<'\n';
-            }
-            else{
-                //s = clock(); 
-                int stat=path(r1,c1,r2,c2,r-1,c-1,map);
-                //e = clock(); 
-                //double time_taken = double(e - s) / double(CLOCKS_PER_SEC); 
-                //cout << "Time taken by program is : " << fixed  << time_taken << setprecision(20); 
-                //cout << " sec " << endl; 
-                if(stat!=9){
-                    (stat==0)?cout<<"binary"<<'\n':cout<<"decimal"<<'\n';
-                }
-                else{
-                    cout<<"neither"<<'\n';
-                }
-            }
-        }
-    }
-    return 0;
+    bfs(start, end, counter);
+    counter++;
+  }
+  // for (int k = 0; k < 2; k++)
+  // {
+  //   cout << "Type " << k << '\n';
+  //   for (int i = 0; i < n; i++)
+  //   {
+  //     for (int j = 0; j < m; ++j)
+  //     {
+  //       cout << vis[k][i][j] << ' ';
+  //     }
+  //     cout << '\n';
+  //   }
+  //   cout << '\n';
+  // }
+  // cout << '\n';
+  return 0;
 }
